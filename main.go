@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	control "secondAssignment/controller"
-	service "secondAssignment/handler"
+	"secondAssignment/controller"
+	"secondAssignment/model"
+	"secondAssignment/service"
 )
 
-func handleRequest(c *control.Collection) {
+func handleRequest(c *service.Collection) {
 	router := mux.NewRouter()
-	handler := service.NewCollectionHandler(c)
+	handler := controller.NewCollectionHandler(c)
 
 	router.HandleFunc("/item/{itemName}", handler.SearchItemsByNameHandler).Methods("GET")       //added
 	router.HandleFunc("/item/id/{itemId}", handler.GetItemByIdHandler).Methods("GET")            //added
@@ -33,7 +34,7 @@ func handleRequest(c *control.Collection) {
 
 func main() {
 
-	collection := control.NewCollection(0, 0, make([]control.User, 0), make([]control.Item, 0))
+	collection := service.NewCollection(0, 0, make([]model.User, 0), make([]model.Item, 0))
 
 	collection.UserTakeData()
 	collection.ItemTakeData()

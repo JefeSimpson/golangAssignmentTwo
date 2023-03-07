@@ -1,19 +1,27 @@
-package controller
+package service
 
 import (
 	"bufio"
 	"fmt"
 	"os"
+	"secondAssignment/model"
 	"strconv"
 	"strings"
 )
 
-func (c *Collection) SignUp(username, password string) {
+func (c *Collection) SignUp(username, password string) bool {
+	for _, user := range c.Users {
+		if user.Username == username {
+			fmt.Println("User:", username, "is already exists.")
+			return false
+		}
+	}
 	c.userIterator++
-	user := User{c.userIterator, username, password}
+	user := model.User{c.userIterator, username, password}
 	c.Users = append(c.Users, user)
 	c.UserSaveData()
 	fmt.Println("User:", user, "was created successfully.")
+	return true
 }
 
 func (c *Collection) SignIn(username, password string) bool {
@@ -27,8 +35,8 @@ func (c *Collection) SignIn(username, password string) bool {
 	return false
 }
 
-func (c *Collection) GetUser(username string) []User {
-	var result []User
+func (c *Collection) GetUser(username string) []model.User {
+	var result []model.User
 	for _, user := range c.Users {
 		if user.Username == username {
 			result = append(result, user)
@@ -52,7 +60,7 @@ func (c *Collection) UserTakeData() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		user := User{n, u[1], u[2]}
+		user := model.User{n, u[1], u[2]}
 		c.Users = append(c.Users, user)
 		c.userIterator = n
 	}
@@ -74,31 +82,3 @@ func (c *Collection) UserSaveData() {
 		}
 	}
 }
-
-//func (c *Collection) SignUpTwo(w http.ResponseWriter, r *http.Request) {
-//	vars := mux.Vars(r)
-//	name := vars["username"]
-//	pswrd := vars["password"]
-//	for _, user := range c.users {
-//		if user.Username == name && user.Password == pswrd {
-//			w.WriteHeader(http.StatusForbidden)
-//			return
-//		}
-//	}
-//	c.SignUp(name, pswrd)
-//	w.WriteHeader(http.StatusCreated)
-//}
-//
-//func (c *Collection) SignInTwo(w http.ResponseWriter, r *http.Request) {
-//	vars := mux.Vars(r)
-//	name := vars["username"]
-//	pswrd := vars["password"]
-//	for _, user := range c.users {
-//		if user.Username == name && user.Password == pswrd {
-//			w.WriteHeader(http.StatusOK)
-//			return
-//		}
-//	}
-//	w.WriteHeader(http.StatusForbidden)
-//	return
-//}

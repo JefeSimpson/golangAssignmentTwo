@@ -1,23 +1,24 @@
-package controller
+package service
 
 import (
 	"bufio"
 	"fmt"
 	"os"
+	"secondAssignment/model"
 	"strconv"
 	"strings"
 )
 
 func (c *Collection) ItemPush(name string, price, rating float64) {
 	c.itemIterator++
-	item := Item{c.itemIterator, name, price, rating}
+	item := model.Item{c.itemIterator, name, price, rating}
 	c.Items = append(c.Items, item)
 	c.ItemSaveData()
 	fmt.Println("Item:", item, "was created successfully.")
 }
 
-func (c *Collection) SearchItemsByName(name string) []Item {
-	var result []Item
+func (c *Collection) SearchItemsByName(name string) []model.Item {
+	var result []model.Item
 	for _, item := range c.Items {
 		if item.ItemName == name {
 			result = append(result, item)
@@ -26,8 +27,8 @@ func (c *Collection) SearchItemsByName(name string) []Item {
 	return result
 }
 
-func (c *Collection) FilterItemsByPrice(price float64) []Item {
-	var result []Item
+func (c *Collection) FilterItemsByPrice(price float64) []model.Item {
+	var result []model.Item
 	for _, item := range c.Items {
 		if item.Price <= price {
 			result = append(result, item)
@@ -37,8 +38,8 @@ func (c *Collection) FilterItemsByPrice(price float64) []Item {
 	return result
 }
 
-func (c *Collection) FilterItemsByRating(rating float64) []Item {
-	var result []Item
+func (c *Collection) FilterItemsByRating(rating float64) []model.Item {
+	var result []model.Item
 	for _, item := range c.Items {
 		if item.Rating <= rating {
 			result = append(result, item)
@@ -83,7 +84,7 @@ func (c *Collection) ItemTakeData() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		item := Item{n, i[1], flo, flot}
+		item := model.Item{n, i[1], flo, flot}
 		c.Items = append(c.Items, item)
 		c.itemIterator = n
 	}

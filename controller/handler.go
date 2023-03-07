@@ -1,24 +1,25 @@
-package handler
+package controller
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	control "secondAssignment/controller"
+	control "secondAssignment/model"
+	"secondAssignment/service"
 	"strconv"
 )
 
 type CollectionHandler struct {
-	Collection *control.Collection
+	Collection *service.Collection
 }
 
-func NewCollectionHandler(collection *control.Collection) *CollectionHandler {
+func NewCollectionHandler(collection *service.Collection) *CollectionHandler {
 	return &CollectionHandler{Collection: collection}
 }
 
 func (h *CollectionHandler) ItemPushHandler(w http.ResponseWriter, r *http.Request) {
-	if !control.IsAuthorized {
+	if !service.GetIsAuthorized() {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -34,7 +35,7 @@ func (h *CollectionHandler) ItemPushHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *CollectionHandler) GetItemByIdHandler(w http.ResponseWriter, r *http.Request) {
-	if !control.IsAuthorized {
+	if !service.GetIsAuthorized() {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -55,7 +56,7 @@ func (h *CollectionHandler) GetItemByIdHandler(w http.ResponseWriter, r *http.Re
 }
 
 func (h *CollectionHandler) GetItemsHandler(w http.ResponseWriter, r *http.Request) {
-	if !control.IsAuthorized {
+	if !service.GetIsAuthorized() {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Println("Endpoint hit: getItemsHandler")
 		return
@@ -66,7 +67,7 @@ func (h *CollectionHandler) GetItemsHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *CollectionHandler) SearchItemsByNameHandler(w http.ResponseWriter, r *http.Request) {
-	if !control.IsAuthorized {
+	if !service.GetIsAuthorized() {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Println("Endpoint hit: searchItemsByNameHandler")
 		return
@@ -80,7 +81,7 @@ func (h *CollectionHandler) SearchItemsByNameHandler(w http.ResponseWriter, r *h
 }
 
 func (h *CollectionHandler) FilterItemsByPriceHandler(w http.ResponseWriter, r *http.Request) {
-	if !control.IsAuthorized {
+	if !service.GetIsAuthorized() {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Println("Endpoint hit: filterItemsByPriceHandler")
 		return
@@ -97,7 +98,7 @@ func (h *CollectionHandler) FilterItemsByPriceHandler(w http.ResponseWriter, r *
 }
 
 func (h *CollectionHandler) FilterItemsByRatingHandler(w http.ResponseWriter, r *http.Request) {
-	if !control.IsAuthorized {
+	if !service.GetIsAuthorized() {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Println("Endpoint hit: filterItemsByRatingHandler")
 		return
@@ -114,7 +115,7 @@ func (h *CollectionHandler) FilterItemsByRatingHandler(w http.ResponseWriter, r 
 }
 
 func (h *CollectionHandler) SetRatingHandler(w http.ResponseWriter, r *http.Request) {
-	if !control.IsAuthorized {
+	if !service.GetIsAuthorized() {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Println("Endpoint hit: setRatingHandler")
 		return
@@ -138,9 +139,11 @@ func (h *CollectionHandler) SignUpHandler(w http.ResponseWriter, r *http.Request
 		fmt.Println("Endpoint hit: signUpHandler")
 		return
 	}
-	h.Collection.SignUp(user.Username, user.Password)
-	//h.Collection.UserSaveData()
-	w.WriteHeader(http.StatusCreated)
+	if h.Collection.SignUp(user.Username, user.Password) {
+		w.WriteHeader(http.StatusCreated)
+	} else {
+		w.WriteHeader(http.StatusConflict)
+	}
 	fmt.Println("Endpoint hit: signUpHandler")
 }
 
@@ -152,7 +155,7 @@ func (h *CollectionHandler) SignInHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 	if h.Collection.SignIn(user.Username, user.Password) {
-		control.IsAuthorized = true
+		service.SetIsAuthorized(true)
 		w.WriteHeader(http.StatusOK)
 		fmt.Println("Endpoint hit: signInHandler")
 	} else {
@@ -162,19 +165,19 @@ func (h *CollectionHandler) SignInHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (h *CollectionHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	if !control.IsAuthorized {
+	if !service.GetIsAuthorized() {
 		fmt.Fprintf(w, "You were not authorized yet.")
 		fmt.Println("Endpoint hit: logoutHandler")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	control.IsAuthorized = false
+	service.SetIsAuthorized(false)
 	fmt.Println("Endpoint hit: logoutHandler")
 	w.WriteHeader(http.StatusOK)
 }
 
 func (h *CollectionHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
-	if !control.IsAuthorized {
+	if !service.GetIsAuthorized() {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Println("Endpoint hit: getUserHandler")
 		return
